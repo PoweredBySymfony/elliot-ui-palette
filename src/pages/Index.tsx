@@ -16,7 +16,7 @@ const Index = () => {
     <div className="flex min-h-screen w-full">
       <Sidebar isAuthenticated={isAuthenticated} onLogout={handleLogout} />
       
-      <main className="ml-64 flex-1 p-8">
+      <main className="flex-1 lg:ml-64 p-4 sm:p-6 lg:p-8 pt-16 lg:pt-8">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-foreground mb-2">
