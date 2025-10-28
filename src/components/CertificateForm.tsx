@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 import { Shield, User, Network, Calendar, FileCheck, Check, ChevronsUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -34,7 +36,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Input } from "@/components/ui/input";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const formSchema = z.object({
@@ -47,7 +49,7 @@ const formSchema = z.object({
   vlan: z.string({
     required_error: "Le VLAN est requis",
   }),
-  expirationDate: z.string().optional(),
+  expirationDate: z.date().optional(),
 });
 
 interface CertificateFormProps {
@@ -58,6 +60,7 @@ export default function CertificateForm({ onSubmit }: CertificateFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [openBeneficiary, setOpenBeneficiary] = useState(false);
   const [openVlan, setOpenVlan] = useState(false);
+  const [openDate, setOpenDate] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -65,7 +68,7 @@ export default function CertificateForm({ onSubmit }: CertificateFormProps) {
       certificateType: "RADIUS",
       beneficiary: "",
       vlan: "",
-      expirationDate: "",
+      expirationDate: undefined,
     },
   });
 
@@ -96,8 +99,8 @@ export default function CertificateForm({ onSubmit }: CertificateFormProps) {
   ];
 
   return (
-    <Card className="glass-card border-0 shadow-soft">
-      <CardHeader className="space-y-1 pb-6">
+    <Card className="glass-card border-0 shadow-soft max-w-4xl mx-auto">
+      <CardHeader className="space-y-1 pb-4">
         <div className="flex items-center gap-3">
           <div className="p-2.5 rounded-xl bg-gradient-primary shadow-primary-glow">
             <Shield className="w-6 h-6 text-white" />
@@ -114,39 +117,86 @@ export default function CertificateForm({ onSubmit }: CertificateFormProps) {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-            {/* Type de Certificat */}
-            <FormField
-              control={form.control}
-              name="certificateType"
-              render={({ field }) => (
-                <FormItem className="group">
-                  <FormLabel className="flex items-center gap-2 text-sm font-semibold text-primary">
-                    <FileCheck className="w-4 h-4" />
-                    Type de certificat
-                  </FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger className="glass-input h-12 border-primary/20 hover:border-primary/40 hover:shadow-soft transition-all duration-300">
-                        <SelectValue placeholder="Sélectionnez le type" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent className="glass-card border-primary/20">
-                      <SelectItem value="RADIUS" className="hover:bg-primary/5">
-                        <div className="flex items-center gap-2">
-                          <Shield className="w-4 h-4 text-primary" />
-                          <span>RADIUS (802.1X)</span>
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormDescription className="text-xs text-muted-foreground">
-                    Certificat pour l'authentification réseau RADIUS
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Type de Certificat */}
+              <FormField
+                control={form.control}
+                name="certificateType"
+                render={({ field }) => (
+                  <FormItem className="group">
+                    <FormLabel className="flex items-center gap-2 text-sm font-semibold text-primary">
+                      <FileCheck className="w-4 h-4" />
+                      Type de certificat
+                    </FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="glass-input h-11 border-primary/20 hover:border-primary/40 hover:shadow-soft transition-all duration-300">
+                          <SelectValue placeholder="Sélectionnez le type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="glass-card border-primary/20">
+                        <SelectItem value="RADIUS" className="hover:bg-primary/5">
+                          <div className="flex items-center gap-2">
+                            <Shield className="w-4 h-4 text-primary" />
+                            <span>RADIUS (802.1X)</span>
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Date d'expiration */}
+              <FormField
+                control={form.control}
+                name="expirationDate"
+                render={({ field }) => (
+                  <FormItem className="group flex flex-col">
+                    <FormLabel className="flex items-center gap-2 text-sm font-semibold text-primary">
+                      <Calendar className="w-4 h-4" />
+                      Date d'expiration <span className="text-xs text-muted-foreground font-normal">(optionnel)</span>
+                    </FormLabel>
+                    <Popover open={openDate} onOpenChange={setOpenDate}>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              "w-full h-11 justify-start text-left font-normal glass-input border-primary/20 hover:border-primary/40 hover:shadow-soft transition-all duration-300",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            <Calendar className="mr-2 h-4 w-4" />
+                            {field.value ? (
+                              format(field.value, "PPP", { locale: fr })
+                            ) : (
+                              <span>Sélectionner une date</span>
+                            )}
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 glass-card border-primary/20" align="start">
+                        <CalendarComponent
+                          mode="single"
+                          selected={field.value}
+                          onSelect={(date) => {
+                            field.onChange(date);
+                            setOpenDate(false);
+                          }}
+                          disabled={(date) => date < new Date()}
+                          initialFocus
+                          className="pointer-events-auto"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             {/* Bénéficiaire avec autocomplétion */}
             <FormField
@@ -166,7 +216,7 @@ export default function CertificateForm({ onSubmit }: CertificateFormProps) {
                           role="combobox"
                           aria-expanded={openBeneficiary}
                           className={cn(
-                            "w-full h-12 justify-between glass-input border-primary/20 hover:border-primary/40 hover:shadow-soft transition-all duration-300",
+                            "w-full h-11 justify-between glass-input border-primary/20 hover:border-primary/40 hover:shadow-soft transition-all duration-300",
                             !field.value && "text-muted-foreground"
                           )}
                         >
@@ -242,9 +292,6 @@ export default function CertificateForm({ onSubmit }: CertificateFormProps) {
                       </Command>
                     </PopoverContent>
                   </Popover>
-                  <FormDescription className="text-xs text-muted-foreground">
-                    Utilisateur ou équipement qui recevra le certificat
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -268,7 +315,7 @@ export default function CertificateForm({ onSubmit }: CertificateFormProps) {
                           role="combobox"
                           aria-expanded={openVlan}
                           className={cn(
-                            "w-full h-12 justify-between glass-input border-primary/20 hover:border-primary/40 hover:shadow-soft transition-all duration-300",
+                            "w-full h-11 justify-between glass-input border-primary/20 hover:border-primary/40 hover:shadow-soft transition-all duration-300",
                             !field.value && "text-muted-foreground"
                           )}
                         >
@@ -323,45 +370,17 @@ export default function CertificateForm({ onSubmit }: CertificateFormProps) {
                       </Command>
                     </PopoverContent>
                   </Popover>
-                  <FormDescription className="text-xs text-muted-foreground">
-                    Réseau VLAN auquel le certificat donnera accès
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Date d'expiration (optionnelle) */}
-            <FormField
-              control={form.control}
-              name="expirationDate"
-              render={({ field }) => (
-                <FormItem className="group">
-                  <FormLabel className="flex items-center gap-2 text-sm font-semibold text-primary">
-                    <Calendar className="w-4 h-4" />
-                    Date d'expiration <span className="text-xs text-muted-foreground font-normal">(optionnel)</span>
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      type="date"
-                      className="glass-input h-12 border-primary/20 hover:border-primary/40 hover:shadow-soft transition-all duration-300"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription className="text-xs text-muted-foreground">
-                    Laisser vide pour utiliser la durée par défaut de l'autorité de certification
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
             {/* Boutons d'action */}
-            <div className="flex gap-3 pt-4">
+            <div className="flex gap-3 pt-2">
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex-1 h-12 bg-gradient-primary hover:shadow-primary-glow text-white font-semibold transition-all duration-300 hover:scale-[1.02]"
+                className="flex-1 h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold transition-all duration-300 hover:scale-[1.02] shadow-lg hover:shadow-xl"
               >
                 {isSubmitting ? (
                   <>
@@ -378,7 +397,7 @@ export default function CertificateForm({ onSubmit }: CertificateFormProps) {
               <Button
                 type="button"
                 variant="outline"
-                className="h-12 px-6 border-primary/20 hover:bg-primary/5 hover:border-primary/40 transition-all duration-300"
+                className="h-11 px-6 border-border hover:bg-muted transition-all duration-300"
                 onClick={() => form.reset()}
               >
                 Réinitialiser
