@@ -2,8 +2,9 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Shield, User, Network, Calendar, FileCheck } from "lucide-react";
+import { Shield, User, Network, Calendar, FileCheck, Check, ChevronsUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import {
   Form,
   FormControl,
@@ -20,6 +21,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -42,6 +56,8 @@ interface CertificateFormProps {
 
 export default function CertificateForm({ onSubmit }: CertificateFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [openBeneficiary, setOpenBeneficiary] = useState(false);
+  const [openVlan, setOpenVlan] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -132,59 +148,100 @@ export default function CertificateForm({ onSubmit }: CertificateFormProps) {
               )}
             />
 
-            {/* Bénéficiaire */}
+            {/* Bénéficiaire avec autocomplétion */}
             <FormField
               control={form.control}
               name="beneficiary"
               render={({ field }) => (
-                <FormItem className="group">
+                <FormItem className="group flex flex-col">
                   <FormLabel className="flex items-center gap-2 text-sm font-semibold text-primary">
                     <User className="w-4 h-4" />
                     Bénéficiaire
                   </FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger className="glass-input h-12 border-primary/20 hover:border-primary/40 hover:shadow-soft transition-all duration-300">
-                        <SelectValue placeholder="Sélectionnez un utilisateur ou équipement" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent className="glass-card border-primary/20">
-                      <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
-                        Utilisateurs
-                      </div>
-                      {beneficiaries
-                        .filter(b => b.type === "user")
-                        .map(beneficiary => (
-                          <SelectItem
-                            key={beneficiary.id}
-                            value={beneficiary.id}
-                            className="hover:bg-primary/5 pl-6"
-                          >
-                            <div className="flex items-center gap-2">
-                              <div className="w-2 h-2 rounded-full bg-accent"></div>
-                              <span>{beneficiary.name}</span>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground mt-2">
-                        Équipements
-                      </div>
-                      {beneficiaries
-                        .filter(b => b.type === "equipment")
-                        .map(beneficiary => (
-                          <SelectItem
-                            key={beneficiary.id}
-                            value={beneficiary.id}
-                            className="hover:bg-primary/5 pl-6"
-                          >
-                            <div className="flex items-center gap-2">
-                              <div className="w-2 h-2 rounded-full bg-primary"></div>
-                              <span>{beneficiary.name}</span>
-                            </div>
-                          </SelectItem>
-                        ))}
-                    </SelectContent>
-                  </Select>
+                  <Popover open={openBeneficiary} onOpenChange={setOpenBeneficiary}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={openBeneficiary}
+                          className={cn(
+                            "w-full h-12 justify-between glass-input border-primary/20 hover:border-primary/40 hover:shadow-soft transition-all duration-300",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value
+                            ? beneficiaries.find((b) => b.id === field.value)?.name
+                            : "Rechercher un utilisateur ou équipement..."}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0 glass-card border-primary/20" align="start">
+                      <Command>
+                        <CommandInput placeholder="Rechercher..." className="h-10" />
+                        <CommandList>
+                          <CommandEmpty>Aucun résultat trouvé.</CommandEmpty>
+                          <CommandGroup heading="Utilisateurs">
+                            {beneficiaries
+                              .filter(b => b.type === "user")
+                              .map((beneficiary) => (
+                                <CommandItem
+                                  key={beneficiary.id}
+                                  value={beneficiary.name}
+                                  onSelect={() => {
+                                    form.setValue("beneficiary", beneficiary.id);
+                                    setOpenBeneficiary(false);
+                                  }}
+                                  className="hover:bg-primary/5"
+                                >
+                                  <div className="flex items-center gap-2 flex-1">
+                                    <div className="w-2 h-2 rounded-full bg-accent"></div>
+                                    <span>{beneficiary.name}</span>
+                                  </div>
+                                  <Check
+                                    className={cn(
+                                      "ml-auto h-4 w-4",
+                                      beneficiary.id === field.value
+                                        ? "opacity-100 text-primary"
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                </CommandItem>
+                              ))}
+                          </CommandGroup>
+                          <CommandGroup heading="Équipements">
+                            {beneficiaries
+                              .filter(b => b.type === "equipment")
+                              .map((beneficiary) => (
+                                <CommandItem
+                                  key={beneficiary.id}
+                                  value={beneficiary.name}
+                                  onSelect={() => {
+                                    form.setValue("beneficiary", beneficiary.id);
+                                    setOpenBeneficiary(false);
+                                  }}
+                                  className="hover:bg-primary/5"
+                                >
+                                  <div className="flex items-center gap-2 flex-1">
+                                    <div className="w-2 h-2 rounded-full bg-primary"></div>
+                                    <span>{beneficiary.name}</span>
+                                  </div>
+                                  <Check
+                                    className={cn(
+                                      "ml-auto h-4 w-4",
+                                      beneficiary.id === field.value
+                                        ? "opacity-100 text-primary"
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                </CommandItem>
+                              ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                   <FormDescription className="text-xs text-muted-foreground">
                     Utilisateur ou équipement qui recevra le certificat
                   </FormDescription>
@@ -193,39 +250,79 @@ export default function CertificateForm({ onSubmit }: CertificateFormProps) {
               )}
             />
 
-            {/* VLAN */}
+            {/* VLAN avec autocomplétion */}
             <FormField
               control={form.control}
               name="vlan"
               render={({ field }) => (
-                <FormItem className="group">
+                <FormItem className="group flex flex-col">
                   <FormLabel className="flex items-center gap-2 text-sm font-semibold text-primary">
                     <Network className="w-4 h-4" />
                     VLAN
                   </FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger className="glass-input h-12 border-primary/20 hover:border-primary/40 hover:shadow-soft transition-all duration-300">
-                        <SelectValue placeholder="Sélectionnez un VLAN" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent className="glass-card border-primary/20">
-                      {vlans.map(vlan => (
-                        <SelectItem
-                          key={vlan.id}
-                          value={vlan.id}
-                          className="hover:bg-primary/5"
+                  <Popover open={openVlan} onOpenChange={setOpenVlan}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={openVlan}
+                          className={cn(
+                            "w-full h-12 justify-between glass-input border-primary/20 hover:border-primary/40 hover:shadow-soft transition-all duration-300",
+                            !field.value && "text-muted-foreground"
+                          )}
                         >
-                          <div className="flex items-center gap-2">
-                            <div className="px-2 py-0.5 rounded bg-primary/10 text-primary text-xs font-mono font-semibold">
-                              {vlan.id}
+                          {field.value ? (
+                            <div className="flex items-center gap-2">
+                              <div className="px-2 py-0.5 rounded bg-primary/10 text-primary text-xs font-mono font-semibold">
+                                {field.value}
+                              </div>
+                              <span>{vlans.find((v) => v.id === field.value)?.name}</span>
                             </div>
-                            <span>{vlan.name}</span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                          ) : (
+                            "Rechercher un VLAN..."
+                          )}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0 glass-card border-primary/20" align="start">
+                      <Command>
+                        <CommandInput placeholder="Rechercher un VLAN..." className="h-10" />
+                        <CommandList>
+                          <CommandEmpty>Aucun VLAN trouvé.</CommandEmpty>
+                          <CommandGroup>
+                            {vlans.map((vlan) => (
+                              <CommandItem
+                                key={vlan.id}
+                                value={`${vlan.id} ${vlan.name}`}
+                                onSelect={() => {
+                                  form.setValue("vlan", vlan.id);
+                                  setOpenVlan(false);
+                                }}
+                                className="hover:bg-primary/5"
+                              >
+                                <div className="flex items-center gap-2 flex-1">
+                                  <div className="px-2 py-0.5 rounded bg-primary/10 text-primary text-xs font-mono font-semibold">
+                                    {vlan.id}
+                                  </div>
+                                  <span>{vlan.name}</span>
+                                </div>
+                                <Check
+                                  className={cn(
+                                    "ml-auto h-4 w-4",
+                                    vlan.id === field.value
+                                      ? "opacity-100 text-primary"
+                                      : "opacity-0"
+                                  )}
+                                />
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                   <FormDescription className="text-xs text-muted-foreground">
                     Réseau VLAN auquel le certificat donnera accès
                   </FormDescription>
