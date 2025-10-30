@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import CertificateForm from "@/components/CertificateForm";
+import CertificateTable from "@/components/CertificateTable";
 import { Shield, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,7 +32,7 @@ export default function Certificates() {
           {/* En-tête */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-primary to-accent-600 bg-clip-text text-transparent flex items-center gap-3">
+              <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent flex items-center gap-3">
                 <Shield className="w-8 h-8 text-primary" />
                 Gestion des Certificats
               </h1>
@@ -42,12 +43,12 @@ export default function Certificates() {
             
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="h-12 px-6 bg-gradient-primary hover:shadow-primary-glow text-white font-semibold transition-all duration-300 hover:scale-[1.02]">
+                <Button className="h-12 px-6 gradient-primary hover:shadow-lg text-white font-semibold transition-smooth hover:scale-[1.02]">
                   <Plus className="w-5 h-5 mr-2" />
                   Nouveau certificat
                 </Button>
               </DialogTrigger>
-              <DialogContent className="glass-card border-0 shadow-elegant max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogContent className="glass-effect border border-border/50 shadow-elevated max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader className="sr-only">
                   <DialogTitle>Créer un nouveau certificat</DialogTitle>
                   <DialogDescription>
@@ -59,49 +60,8 @@ export default function Certificates() {
             </Dialog>
           </div>
 
-          {/* Formulaire principal (version page complète) */}
-          <div className="max-w-3xl">
-            <CertificateForm onSubmit={handleFormSubmit} />
-          </div>
-
-          {/* Section informative */}
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mt-8">
-            <div className="glass-card p-6 border-0 shadow-soft hover:shadow-primary-glow/50 transition-all duration-300">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 rounded-lg bg-primary/10">
-                  <Shield className="w-5 h-5 text-primary" />
-                </div>
-                <h3 className="font-semibold text-primary">Sécurité renforcée</h3>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Authentification basée sur des certificats X.509 pour une sécurité maximale
-              </p>
-            </div>
-
-            <div className="glass-card p-6 border-0 shadow-soft hover:shadow-accent-glow/50 transition-all duration-300">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 rounded-lg bg-accent/10">
-                  <Plus className="w-5 h-5 text-accent" />
-                </div>
-                <h3 className="font-semibold text-primary">Génération rapide</h3>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Création automatique via l'API Smallstep CA en quelques secondes
-              </p>
-            </div>
-
-            <div className="glass-card p-6 border-0 shadow-soft hover:shadow-primary-glow/50 transition-all duration-300 sm:col-span-2 lg:col-span-1">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 rounded-lg bg-primary/10">
-                  <Shield className="w-5 h-5 text-primary" />
-                </div>
-                <h3 className="font-semibold text-primary">Gestion centralisée</h3>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Tous vos certificats et métadonnées accessibles depuis une interface unique
-              </p>
-            </div>
-          </div>
+          {/* Tableau des certificats */}
+          <CertificateTable isAdmin={true} />
         </div>
       </main>
     </div>
