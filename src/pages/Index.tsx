@@ -1,20 +1,11 @@
-import { useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import DashboardCard from "@/components/DashboardCard";
 import { Shield, Key, Users, Activity, TrendingUp, CheckCircle2 } from "lucide-react";
 
 const Index = () => {
-  // Simulate authentication state - in real app, use proper auth context
-  const [isAuthenticated] = useState(true);
-
-  const handleLogout = () => {
-    console.log("Logout clicked");
-    // Handle logout logic here
-  };
-
   return (
     <div className="flex min-h-screen w-full">
-      <Sidebar isAuthenticated={isAuthenticated} onLogout={handleLogout} />
+      <Sidebar />
       
       <main className="flex-1 lg:ml-64 p-4 sm:p-6 lg:p-8 pt-16 lg:pt-8">
         {/* Header */}

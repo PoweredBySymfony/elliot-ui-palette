@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/dialog";
 
 export default function Certificates() {
-  const [isAuthenticated] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleFormSubmit = (data: any) => {
@@ -25,7 +24,7 @@ export default function Certificates() {
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-orange-50/20">
-      <Sidebar isAuthenticated={isAuthenticated} />
+      <Sidebar />
       
       <main className="flex-1 lg:ml-64 p-4 sm:p-6 lg:p-8 pt-16 lg:pt-8">
         <div className="max-w-7xl mx-auto space-y-8">
