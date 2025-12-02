@@ -1,15 +1,18 @@
 import { Home, Shield, Key, Users, Settings, LogOut, FileText, Menu, X } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Logo from "./Logo";
+import { useAuth } from "@/contexts/AuthContext";
 
-interface SidebarProps {
-  isAuthenticated: boolean;
-  onLogout?: () => void;
-}
-
-const Sidebar = ({ isAuthenticated, onLogout }: SidebarProps) => {
+const Sidebar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
 
   const navigationItems = [
     { name: "Tableau de bord", path: "/", icon: Home },
@@ -98,19 +101,19 @@ const Sidebar = ({ isAuthenticated, onLogout }: SidebarProps) => {
 
           {/* User Section & Logout */}
           <div className="border-t border-sidebar-border p-4">
-            {isAuthenticated ? (
+            {isAuthenticated && user ? (
               <>
                 <div className="mb-3 rounded-xl bg-sidebar-accent p-3">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-primary text-white font-semibold">
-                      JD
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full gradient-accent text-accent-foreground font-semibold">
+                      {user.username.slice(0, 2).toUpperCase()}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-sidebar-foreground truncate">
-                        John Doe
+                      <p className="text-sm font-semibold text-sidebar-foreground truncate capitalize">
+                        {user.username}
                       </p>
                       <p className="text-xs text-muted-foreground truncate">
-                        admin@elliot.app
+                        {user.email}
                       </p>
                     </div>
                   </div>
@@ -118,7 +121,7 @@ const Sidebar = ({ isAuthenticated, onLogout }: SidebarProps) => {
                 <button
                   onClick={() => {
                     closeMobileMenu();
-                    onLogout?.();
+                    handleLogout();
                   }}
                   className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-destructive hover:bg-destructive/10 transition-smooth group"
                 >
@@ -131,16 +134,9 @@ const Sidebar = ({ isAuthenticated, onLogout }: SidebarProps) => {
                 <NavLink
                   to="/login"
                   onClick={closeMobileMenu}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-primary px-4 py-3 text-sm font-semibold text-white transition-smooth hover:opacity-90 card-shadow"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl gradient-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition-smooth hover:opacity-90 card-shadow"
                 >
                   Connexion
-                </NavLink>
-                <NavLink
-                  to="/register"
-                  onClick={closeMobileMenu}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-primary px-4 py-3 text-sm font-semibold text-primary transition-smooth hover:bg-primary/5"
-                >
-                  Inscription
                 </NavLink>
               </div>
             )}
