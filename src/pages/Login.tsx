@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Logo from "@/components/Logo";
-import { Mail, Lock, User, Loader2 } from "lucide-react";
+import { User, Lock, Loader2, LogIn } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
@@ -43,45 +43,83 @@ const Login = () => {
   };
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center p-4 bg-gradient-to-br from-primary/5 via-background to-accent/5">
-      {/* Background decorative elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/10 rounded-full blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-accent/10 rounded-full blur-3xl" />
-      </div>
-
-      <div className="w-full max-w-md relative z-10">
-        {/* Logo & Title */}
-        <div className="mb-8 text-center">
-          <div className="flex justify-center mb-6">
-            <div className="p-4 rounded-2xl bg-card card-shadow">
-              <Logo size="lg" />
-            </div>
-          </div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">
-            Connexion à <span className="text-primary">Elliot</span>
-          </h1>
-          <p className="text-muted-foreground">
-            Gérez vos certificats RADIUS en toute simplicité
-          </p>
+    <div className="flex min-h-screen w-full">
+      {/* Left Panel - Gradient Background with interactive elements */}
+      <div className="hidden lg:flex lg:w-1/2 xl:w-3/5 relative overflow-hidden bg-gradient-to-br from-[hsl(205,100%,25%)] via-[hsl(205,80%,35%)] to-[hsl(25,85%,53%)]">
+        {/* Floating particles */}
+        <div className="absolute inset-0">
+          {/* Animated floating dots */}
+          <div className="absolute top-[15%] right-[20%] w-3 h-3 bg-white/30 rounded-full animate-float-slow" />
+          <div className="absolute top-[25%] right-[35%] w-2 h-2 bg-white/20 rounded-full animate-float-medium" />
+          <div className="absolute top-[45%] right-[15%] w-2.5 h-2.5 bg-white/25 rounded-full animate-float-fast" />
+          <div className="absolute top-[60%] left-[15%] w-2 h-2 bg-white/20 rounded-full animate-float-medium" />
+          <div className="absolute top-[75%] right-[40%] w-3 h-3 bg-white/15 rounded-full animate-float-slow" />
+          <div className="absolute top-[85%] left-[25%] w-1.5 h-1.5 bg-white/30 rounded-full animate-float-fast" />
+          <div className="absolute top-[35%] left-[30%] w-2 h-2 bg-white/20 rounded-full animate-float-slow" />
+          <div className="absolute top-[55%] left-[45%] w-2.5 h-2.5 bg-white/15 rounded-full animate-float-medium" />
         </div>
 
-        {/* Login Card */}
-        <div className="rounded-2xl bg-card p-8 card-shadow border border-border/50">
-          <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Content */}
+        <div className="relative z-10 flex flex-col justify-between p-12 w-full">
+          {/* Logo */}
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-xl bg-white/10 backdrop-blur-sm">
+              <Logo size="md" />
+            </div>
+            <span className="text-2xl font-bold text-white">Elliot</span>
+          </div>
+
+          {/* Welcome Text */}
+          <div className="max-w-md">
+            <h1 className="text-5xl font-bold text-white mb-4 leading-tight">
+              Ravi de vous revoir.
+            </h1>
+            <p className="text-lg text-white/80">
+              Logiciel de gestion de certificats RADIUS au sein de votre réseau.
+            </p>
+          </div>
+
+          {/* Footer */}
+          <p className="text-sm text-white/60">
+            © 2025 Elliot. Tous droits réservés.
+          </p>
+        </div>
+      </div>
+
+      {/* Right Panel - Login Form */}
+      <div className="w-full lg:w-1/2 xl:w-2/5 flex items-center justify-center p-6 sm:p-12 bg-background">
+        <div className="w-full max-w-md">
+          {/* Mobile Logo */}
+          <div className="lg:hidden flex items-center gap-3 mb-8">
+            <div className="p-2 rounded-xl bg-primary/10">
+              <Logo size="md" />
+            </div>
+            <span className="text-2xl font-bold text-primary">Elliot</span>
+          </div>
+
+          {/* Form Header */}
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold text-foreground mb-2">Connexion</h2>
+            <p className="text-muted-foreground">
+              Veuillez entrer vos identifiants.
+            </p>
+          </div>
+
+          {/* Login Form */}
+          <form onSubmit={handleSubmit} className="space-y-6">
             {/* Username Input */}
             <div>
               <label htmlFor="username" className="block text-sm font-medium text-foreground mb-2">
-                Nom d'utilisateur
+                Login
               </label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <input
                   id="username"
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full rounded-xl border border-input bg-background pl-10 pr-4 py-3 text-sm transition-smooth focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="w-full rounded-xl border border-input bg-background pl-12 pr-4 py-3.5 text-sm transition-smooth focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   placeholder="Votre nom d'utilisateur"
                   required
                   disabled={isLoading}
@@ -95,13 +133,13 @@ const Login = () => {
                 Mot de passe
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <input
                   id="password"
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full rounded-xl border border-input bg-background pl-10 pr-4 py-3 text-sm transition-smooth focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="w-full rounded-xl border border-input bg-background pl-12 pr-4 py-3.5 text-sm transition-smooth focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   placeholder="••••••••"
                   required
                   disabled={isLoading}
@@ -109,69 +147,52 @@ const Login = () => {
               </div>
             </div>
 
-            {/* Remember & Forgot */}
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="h-4 w-4 rounded border-input text-primary focus:ring-2 focus:ring-primary/20 transition-smooth accent-primary"
-                />
-                <span className="text-foreground">Se souvenir de moi</span>
-              </label>
-              <a href="#" className="text-accent hover:text-accent-light transition-smooth font-medium">
-                Mot de passe oublié ?
-              </a>
-            </div>
+            {/* Remember me */}
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                className="h-4 w-4 rounded border-input text-primary focus:ring-2 focus:ring-primary/20 transition-smooth accent-primary"
+              />
+              <span className="text-sm text-foreground">Se souvenir de moi</span>
+            </label>
 
-            {/* Submit Button - Primary Blue */}
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full rounded-xl gradient-primary py-3 text-sm font-semibold text-primary-foreground transition-smooth hover:opacity-90 card-shadow disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full rounded-xl gradient-accent py-4 text-sm font-semibold text-accent-foreground transition-smooth hover:opacity-90 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Loader2 className="h-5 w-5 animate-spin" />
                   Connexion en cours...
                 </>
               ) : (
-                "Se connecter"
+                <>
+                  <LogIn className="h-5 w-5" />
+                  Se connecter
+                </>
               )}
             </button>
+          </form>
 
-            {/* Alternative - Accent Orange Button */}
+          {/* Demo info */}
+          <div className="mt-8 pt-6 border-t border-border">
+            <p className="text-sm text-muted-foreground text-center mb-3">
+              Compte de démonstration
+            </p>
             <button
               type="button"
-              className="w-full rounded-xl gradient-accent py-3 text-sm font-semibold text-accent-foreground transition-smooth hover:opacity-90 glow-accent"
               onClick={() => {
                 setUsername("xavier");
                 setPassword("123456");
               }}
+              className="w-full rounded-xl border-2 border-dashed border-border py-3 text-sm font-medium text-muted-foreground hover:border-primary hover:text-primary transition-smooth"
             >
-              Remplir avec compte démo
+              <span className="font-mono">xavier</span> / <span className="font-mono">123456</span>
             </button>
-          </form>
-
-          {/* Divider */}
-          <div className="my-6 flex items-center gap-4">
-            <div className="h-px flex-1 bg-border"></div>
-            <span className="text-xs text-muted-foreground uppercase tracking-wider">Info</span>
-            <div className="h-px flex-1 bg-border"></div>
-          </div>
-
-          {/* Demo credentials */}
-          <div className="rounded-xl bg-secondary/50 p-4 border border-border/50">
-            <p className="text-sm text-muted-foreground text-center">
-              <span className="font-medium text-foreground">Compte démo :</span>{" "}
-              <span className="text-primary font-mono">xavier</span> / <span className="text-accent font-mono">123456</span>
-            </p>
           </div>
         </div>
-
-        {/* Footer */}
-        <p className="text-center text-sm text-muted-foreground mt-6">
-          © 2024 Elliot - Gestion des certificats RADIUS
-        </p>
       </div>
     </div>
   );

@@ -129,4 +129,32 @@ All colors MUST be HSL.
   .gradient-accent {
     background: var(--gradient-accent);
   }
+
+  /* Floating animations for login page */
+  @keyframes float-slow {
+    0%, 100% { transform: translateY(0px) translateX(0px); opacity: 0.3; }
+    50% { transform: translateY(-20px) translateX(10px); opacity: 0.5; }
+  }
+  
+  @keyframes float-medium {
+    0%, 100% { transform: translateY(0px) translateX(0px); opacity: 0.2; }
+    50% { transform: translateY(-15px) translateX(-8px); opacity: 0.4; }
+  }
+  
+  @keyframes float-fast {
+    0%, 100% { transform: translateY(0px) translateX(0px); opacity: 0.25; }
+    50% { transform: translateY(-12px) translateX(5px); opacity: 0.45; }
+  }
+
+  .animate-float-slow {
+    animation: float-slow 8s ease-in-out infinite;
+  }
+
+  .animate-float-medium {
+    animation: float-medium 6s ease-in-out infinite;
+  }
+
+  .animate-float-fast {
+    animation: float-fast 4s ease-in-out infinite;
+  }
 }
